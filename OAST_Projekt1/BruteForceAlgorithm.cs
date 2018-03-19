@@ -10,6 +10,9 @@ namespace OAST_Projekt1
     {
         List<Link> links;
         List<Demand> demands;
+        Solution solution;
+
+        List<List<int>> possibleCombinations = new List<List<int>>();
 
         Random rand;
 
@@ -17,10 +20,44 @@ namespace OAST_Projekt1
         {
             this.links = links;
             this.demands = demands;
-
-            rand = new Random(2);
-
+            this.solution = new Solution(demands);
             solveBruteForceAlgorithm();
+        }
+
+        List<List<int>> prepareAllPossibleCombinations(IEnumerable<int> input, int lenght,int demandSum)
+        {
+            var possibleScenarios = new List<List<int>>();
+            foreach (var c in CombinationsWithRepition(input, lenght))
+            {
+                var intArray = new List<int>();
+                foreach (char character in c)
+                {
+                    int tmpInt = int.Parse(character.ToString());
+                    intArray.Add(tmpInt);
+                }
+                var sum = 0;
+                foreach (int number in intArray)
+                {
+                    sum += number;
+                }
+                if (sum == demandSum)
+                {
+                    possibleCombinations.Add(intArray);
+                }
+            }
+            return possibleCombinations;
+        }
+
+        static IEnumerable<String> CombinationsWithRepition(IEnumerable<int> input, int length)
+        {
+            if (length <= 0)
+                yield return "";
+            else
+            {
+                foreach (var i in input)
+                    foreach (var c in CombinationsWithRepition(input, length - 1))
+                        yield return i.ToString() + c;
+            }
         }
 
         void solveBruteForceAlgorithm()
@@ -32,22 +69,30 @@ namespace OAST_Projekt1
 
             foreach(Demand demand in demands)
             {
-                for(int i = 0; i < demand.demandedCapacity; i++)
+                var input = new List<int>();
+                for(int i = 0; i <= demand.AvailablePaths.Count; i++) input.Add(i);
+                var possibleCombinations = prepareAllPossibleCombinations(input, demand.AvailablePaths.Count, demand.demandedCapacity);
+
+                foreach(List<int> combination in possibleCombinations)
                 {
-                    int randomPathIndex = rand.Next(demand.AvailablePaths.Count());
-                    foreach(Link link in demand.AvailablePaths[randomPathIndex].Links)
+                    for (int i = 0; i < demand.AvailablePaths.Count; i++)
                     {
-                        Link networkLink = this.links.Find(x => x.id == link.id);
-                        networkLink.usedCapacity += 1;
+                        foreach(Link link in demand.AvailablePaths[i].Links)
+                        {
+                            Link networkLink = this.links.Find(x => x.id == link.id);
+                            networkLink.usedCapacity = networkLink.usedCapacity + 1 * combination[i];
+                        }
+                    }
+                    if(objectiveFunction() == 0){
+                        Console.WriteLine("Demand #" + demand.id);
+                        for(int i=1;i<=combination.Count;i++)
+                        {
+                            Console.WriteLine("Path #"+i+" Used: "+combination[i-1]);
+                        }
+                        break;
                     }
                 }
-            }
-
-            foreach(Link link in links)
-            {
-                if(link.usedCapacity > 0){
-                    Console.WriteLine(link.id + " " + link.usedCapacity);
-                }
+             
             }
         }
 

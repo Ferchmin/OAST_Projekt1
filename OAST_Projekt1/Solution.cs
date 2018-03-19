@@ -9,7 +9,7 @@ namespace OAST_Projekt1
     class Solution
     {
         List<Demand> Demands = new List<Demand>();
-        List<int> UsedPaths = new List<int>();
+        //List<int> UsedPaths = new List<int>();
 
         public Solution(List<Demand> Demands)
         {
