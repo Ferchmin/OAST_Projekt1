@@ -10,23 +10,54 @@ namespace OAST_Projekt1
     {
         double mutationProbability { get; set; }
         double crossoverProbability { get; set; }
-        int population { get; set; }
+        int populationNumber { get; set; }
         int seed { get; set; }
         int stopCrit { get; set; }
         enum StopCriterium { time, generationsNumber, mutationsNumber, noProgressSolutionNumber };
-
+        Solution solution;
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Solution> Population;
+        
 
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
             LoadAlgorithmParameters();
+            Population = CreatePopulation(Demands, populationNumber);
+            seed = 43453;
         }
         //Generowanie populacji początkowej
-        public List<Solution> CreatePopulation(List<Demand> Demands, int population)
+        public List<Solution> CreatePopulation(List<Demand> Demands, int populationNumber)
         {
+            //Ustalenie liczby osobników w populacji
             Population = new List<Solution>();
+            for (int i=0; i < populationNumber; i++)
+            {
+                Population.Add(solution = new Solution(Demands));                
+            }
+
+            //Losowanie parametrów dla populacji        
+            foreach (Solution solution in Population)
+            {
+                
+                foreach (Demand demand in Demands)
+                {
+                    demand.UsedPaths = new List<int>();
+                    for (int l = 1; l <= demand.AvailablePaths.Count; l++)
+                    {
+                        demand.UsedPaths.Add(0);
+                    }
+                    for (int m = 0; m < demand.demandedCapacity; m++)
+                    {
+                        //Random rand = new Random(seed);
+                        Random rand = new Random(3);
+                        int randomIndex = rand.Next(demand.AvailablePaths.Count());
+                        demand.UsedPaths[randomIndex] = demand.UsedPaths[randomIndex] + 1;
+                        
+                    }
+                }
+
+            }
             return Population;
         }
         //Metoda odpowiadająca za krzyżowanie 
@@ -56,7 +87,7 @@ namespace OAST_Projekt1
             Console.WriteLine("Type number of population:");
             try
             {
-                population = Int32.Parse(Console.ReadLine());
+                populationNumber = Int32.Parse(Console.ReadLine());
             }
             catch
             {

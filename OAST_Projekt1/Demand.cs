@@ -23,6 +23,7 @@ namespace OAST_Projekt1
             this.demandedCapacity = demandedCapacity;
             this.AvailablePaths = AvailablePaths;
             this.UsedPaths = UsedPaths;
+            
         }
 
         public Demand(int id, int firstNode, int secondNode, int demandedCapacity)
@@ -31,6 +32,7 @@ namespace OAST_Projekt1
             this.firstNode = firstNode;
             this.secondNode = secondNode;
             this.demandedCapacity = demandedCapacity;
+
         }
     }
 }
