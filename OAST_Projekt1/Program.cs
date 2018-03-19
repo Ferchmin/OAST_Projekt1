@@ -10,6 +10,9 @@ namespace OAST_Projekt1
     {
         static void Main(string[] args)
         {
+            Tester tester = new Tester();
+            Console.ReadLine();
+
         }
     }
 }
