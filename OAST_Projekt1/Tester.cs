@@ -9,6 +9,9 @@ namespace OAST_Projekt1
 {
     class Tester
     {
+
+        Random rand;
+
         string filepath;
 
         Link link;
@@ -23,9 +26,21 @@ namespace OAST_Projekt1
 
         public Tester()
         {
+            //CreateRandomGenerator();
             ReadInputFile();
+
+            BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(this.Links, this.Demands);
+
+
             //ChooseProgramMode();
-            // LoadAlgorithmParameters();
+            //LoadAlgorithmParameters();
+        }
+
+        private void CreateRandomGenerator()
+        {
+            Console.Write("Podaj ziarno:");
+            int ziarno = Console.Read();
+            rand = new Random(ziarno);
         }
 
         public void ReadInputFile()
@@ -114,6 +129,7 @@ namespace OAST_Projekt1
         public void BruteForce(List<Link> links, List<Demand> demands)
         {
             Console.WriteLine("You have chosen brute-force algorithm");
+            BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(this.Links, this.Demands);
         }
     }
 }

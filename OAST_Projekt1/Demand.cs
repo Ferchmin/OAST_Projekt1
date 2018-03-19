@@ -8,10 +8,10 @@ namespace OAST_Projekt1
 {
     class Demand
     {
-        int id { get; set; }
-        int firstNode { get; set; }
-        int secondNode { get; set; }
-        int demandedCapacity { get; set; }
+        public int id { get; set; }
+        public int firstNode { get; set; }
+        public int secondNode { get; set; }
+        public int demandedCapacity { get; set; }
         public List<Path> AvailablePaths = new List<Path>();
         public List<int> UsedPaths = new List<int>();
 

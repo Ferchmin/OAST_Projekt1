@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BruteForceAlgorithm.cs" />
     <Compile Include="Demand.cs" />
     <Compile Include="EvolutionAlgorithm.cs" />
     <Compile Include="Link.cs" />
