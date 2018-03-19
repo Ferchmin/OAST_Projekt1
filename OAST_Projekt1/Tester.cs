@@ -29,8 +29,8 @@ namespace OAST_Projekt1
             //CreateRandomGenerator();
             ReadInputFile();
 
-            BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(this.Links, this.Demands);
-
+            //BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(this.Links, this.Demands);
+            EvolutionAlgorithm evoAlg = new EvolutionAlgorithm(Links, Demands);
 
             //ChooseProgramMode();
             //LoadAlgorithmParameters();
