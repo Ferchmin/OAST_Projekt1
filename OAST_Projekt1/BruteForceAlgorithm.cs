@@ -11,10 +11,15 @@ namespace OAST_Projekt1
         List<Link> links;
         List<Demand> demands;
 
+        Random rand;
+
         public BruteForceAlgorithm(List<Link> links, List<Demand> demands)
         {
             this.links = links;
             this.demands = demands;
+
+            rand = new Random(2);
+
             solveBruteForceAlgorithm();
         }
 
@@ -27,15 +32,17 @@ namespace OAST_Projekt1
 
             foreach(Demand demand in demands)
             {
-                foreach(Path path in demand.AvailablePaths)
+                for(int i = 0; i < demand.demandedCapacity; i++)
                 {
-                    foreach(Link link in path.Links)
+                    int randomPathIndex = rand.Next(demand.AvailablePaths.Count());
+                    foreach(Link link in demand.AvailablePaths[randomPathIndex].Links)
                     {
-                        Link networkLink = this.links.Find((x => x.id == link.id));
-                        networkLink.usedCapacity = networkLink.usedCapacity + demand.demandedCapacity;
+                        Link networkLink = this.links.Find(x => x.id == link.id);
+                        networkLink.usedCapacity += 1;
                     }
                 }
             }
+
             foreach(Link link in links)
             {
                 if(link.usedCapacity > 0){
