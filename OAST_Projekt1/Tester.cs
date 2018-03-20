@@ -26,29 +26,17 @@ namespace OAST_Projekt1
 
         public Tester()
         {
-            //CreateRandomGenerator();
+            
             ReadInputFile();
-
-            //BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(this.Links, this.Demands);
-            EvolutionAlgorithm evoAlg = new EvolutionAlgorithm(Links, Demands);
-
-            //ChooseProgramMode();
-            //LoadAlgorithmParameters();
-        }
-
-        private void CreateRandomGenerator()
-        {
-            Console.Write("Podaj ziarno:");
-            int ziarno = Console.Read();
-            rand = new Random(ziarno);
+            ChooseProgramMode();
         }
 
         public void ReadInputFile()
         {
-            Console.WriteLine("Drag and drop input file and press ENTER to load data for algorithm");
+            //Console.WriteLine("Drag and drop input file and press ENTER to load data for algorithm");
             try
             {
-                filepath = Console.ReadLine();
+                //filepath = Console.ReadLine();
                 filepath = "Network.txt";
                 streamReader = new StreamReader(filepath);
             }
@@ -110,18 +98,22 @@ namespace OAST_Projekt1
 
         public void ChooseProgramMode()
         {
-            Console.WriteLine("Choose program mode:");
-            Console.WriteLine("Choose program mode:\n{0}\n{1}\n}",
-                "1 - brute-force",
-                "2 - evolution algorithm");
+            Console.WriteLine("Choose program mode:\n");
+            Console.WriteLine("1 - Brute Force");
+            Console.WriteLine("2 - Evolution Algorithm");
+        
             int mode = Int32.Parse(Console.ReadLine());
             switch (mode)
             {
                 case 1:
-                    BruteForce(Links, Demands);
+                    BruteForceAlgorithm bruteForce = new BruteForceAlgorithm(Links, Demands);
                     break;
                 case 2:
                     EvolutionAlgorithm evolutionAlgorithm = new EvolutionAlgorithm(Links, Demands);
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice");
+                    ChooseProgramMode();
                     break;
             }
         }

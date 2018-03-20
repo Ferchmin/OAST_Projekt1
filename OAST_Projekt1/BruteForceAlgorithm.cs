@@ -70,7 +70,7 @@ namespace OAST_Projekt1
             foreach(Demand demand in demands)
             {
                 var input = new List<int>();
-                for(int i = 0; i <= demand.AvailablePaths.Count; i++) input.Add(i);
+                for(int i = 0; i <= demand.demandedCapacity; i++) input.Add(i);
                 var possibleCombinations = prepareAllPossibleCombinations(input, demand.AvailablePaths.Count, demand.demandedCapacity);
 
                 foreach(List<int> combination in possibleCombinations)
