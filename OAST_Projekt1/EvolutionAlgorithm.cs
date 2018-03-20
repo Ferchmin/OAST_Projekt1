@@ -18,7 +18,8 @@ namespace OAST_Projekt1
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Solution> Population;
-        
+
+        Random rand = new Random(3);
 
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
@@ -39,18 +40,15 @@ namespace OAST_Projekt1
             //Losowanie parametrów dla populacji        
             foreach (Solution solution in Population)
             {
-                
                 foreach (Demand demand in Demands)
                 {
-                    demand.UsedPaths = new List<int>();
+                    demand.UsedPaths.Clear();
                     for (int l = 1; l <= demand.AvailablePaths.Count; l++)
                     {
                         demand.UsedPaths.Add(0);
                     }
                     for (int m = 0; m < demand.demandedCapacity; m++)
                     {
-                        //Random rand = new Random(seed);
-                        Random rand = new Random(3);
                         int randomIndex = rand.Next(demand.AvailablePaths.Count());
                         demand.UsedPaths[randomIndex] = demand.UsedPaths[randomIndex] + 1;
                         
