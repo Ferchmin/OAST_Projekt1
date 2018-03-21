@@ -34,13 +34,18 @@ namespace OAST_Projekt1
             Population = new List<Solution>();
             for (int i=0; i < populationNumber; i++)
             {
-                Population.Add(solution = new Solution(Demands));                
+                List<Demand> localDemands = new List<Demand>();
+                foreach(Demand demand in Demands)
+                {
+                    localDemands.Add(demand);
+                }
+                Population.Add(solution = new Solution(localDemands));                
             }
 
             //Losowanie parametrów dla populacji        
             foreach (Solution solution in Population)
             {
-                foreach (Demand demand in Demands)
+                foreach (Demand demand in solution.Demands)
                 {
                     demand.UsedPaths.Clear();
                     for (int l = 1; l <= demand.AvailablePaths.Count; l++)

@@ -27,5 +27,16 @@ namespace OAST_Projekt1
             this.fibres = fibres;
             capacity = fibres * lambdas;
         }
+
+        public Link(Link link)
+        {
+            this.id = link.id;
+            this.firstNode = link.firstNode;
+            this.secondNode = link.secondNode;
+            this.cost = link.cost;
+            this.lambdas = link.lambdas;
+            this.fibres = link.fibres;
+            this.capacity = fibres * lambdas;
+        }
     }
 }

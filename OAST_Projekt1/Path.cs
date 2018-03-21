@@ -14,5 +14,17 @@ namespace OAST_Projekt1
         {
             this.Links = links;
         }
+
+        public Path(Path path)
+        {
+            this.Links = new List<Link>();
+
+            foreach(Link link in path.Links)
+            {
+                Link copy = new Link(link);
+                this.Links.Add(copy);
+            }
+
+        }
     }
 }

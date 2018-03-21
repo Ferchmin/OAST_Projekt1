@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OAST_Projekt1
 {
-    struct Demand
+    class Demand
     {
         public int id { get; set; }
         public int firstNode { get; set; }
@@ -34,6 +34,27 @@ namespace OAST_Projekt1
             this.demandedCapacity = demandedCapacity;
             AvailablePaths = new List<Path>();
             UsedPaths = new List<int>();
+        }
+
+        public Demand(Demand demand)
+        {
+            this.id = demand.id;
+            this.firstNode = demand.firstNode;
+            this.secondNode = demand.secondNode;
+            this.demandedCapacity = demand.demandedCapacity;
+
+            this.AvailablePaths = new List<Path>();
+            foreach(Path path in demand.AvailablePaths)
+            {
+                Path copy = new Path(path);
+                AvailablePaths.Add(copy);
+            }
+  
+            this.UsedPaths = new List<int>();
+            foreach(int path in demand.UsedPaths)
+            {
+                UsedPaths.Add(path);
+            }
         }
     }
 }

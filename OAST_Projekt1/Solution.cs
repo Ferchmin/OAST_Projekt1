@@ -8,22 +8,17 @@ namespace OAST_Projekt1
 {
     class Solution
     {
-        List<Demand> Demands = new List<Demand>();
-        List<int> UsedPaths;
+        public List<Demand> Demands = new List<Demand>();
+        public List<int> UsedPaths = new List<int>();
         // Dictionary<Demand, List<int>> UsedPathsNumberForDemand = new Dictionary<Demand, List<int>>();
 
         public Solution(List<Demand> Demands)
         {
-            this.Demands = Demands;
-            //foreach (Demand demands in Demands)
-            //{
-            /*    UsedPaths = new List<int>();
-                UsedPathsNumberForDemand.Add(demands, UsedPaths);
-                for(int i=0; i < demands.AvailablePaths.Count; i++)
-                {
-              }
-
-                */  
+            foreach(Demand demand in Demands)
+            {
+                Demand copy = new Demand(demand);
+                this.Demands.Add(copy);
+            }
         }
     }
  }
