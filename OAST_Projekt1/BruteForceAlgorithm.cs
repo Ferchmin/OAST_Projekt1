@@ -104,5 +104,6 @@ namespace OAST_Projekt1
 
             return Math.Max(0, linkResults.Max());
         }
+
     }
 }

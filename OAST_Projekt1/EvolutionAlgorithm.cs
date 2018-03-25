@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,14 @@ namespace OAST_Projekt1
         int populationNumber { get; set; }
         int seed { get; set; }
         int stopCrit { get; set; }
-        enum StopCriterium { time, generationsNumber, mutationsNumber, noProgressSolutionNumber };
+        int stopParameter { get; set;}
         private int mutationCounter = 0;
+        private int generationsCounter = 0;
+        private int ammountOfGenerationsWithoutProgress = 0;
+        private int bestSolutionPreviousGeneration;
+        private int bestSolutionNextGeneration;
+        long algorithmTime { get; set; }
+ 
         Solution solution;
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
@@ -25,7 +32,7 @@ namespace OAST_Projekt1
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
             LoadAlgorithmParameters();         
-            InitiateAlgorithm();
+            InitiateAlgorithm(Demands);
         }
         //Metoda odpowiedzialna za wczytanie parametrow algorytmu
         void LoadAlgorithmParameters()
@@ -78,12 +85,25 @@ namespace OAST_Projekt1
             try
             {
                 stopCrit = Int32.Parse(Console.ReadLine());
-                // switch (stopCrit)
-                //{
-                // case 1:
-                // = StopCriterium.generationsNumber;
-                //break;
-                //}
+                switch (stopCrit)
+                {
+                    case 1:
+                        Console.WriteLine("Type time in seconds:");
+                        stopParameter= Int32.Parse(Console.ReadLine());
+                        break;
+                    case 2:
+                        Console.WriteLine("Type number of generations");
+                        stopParameter = Int32.Parse(Console.ReadLine());
+                        break;
+                    case 3:
+                        Console.WriteLine("Type number of mutations");
+                        stopParameter = Int32.Parse(Console.ReadLine());
+                        break;
+                    case 4:
+                        Console.WriteLine("Type ammount of generations without progress");
+                        stopParameter = Int32.Parse(Console.ReadLine());
+                        break;
+                }
             }
             catch
             {
@@ -106,14 +126,21 @@ namespace OAST_Projekt1
             #endregion
         }
         //Metoda w której znajduje się główna pętla programu
-        void InitiateAlgorithm()
+        void InitiateAlgorithm(List<Demand> Demands)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             //1. Stworzenie populacji
             Population = CreatePopulation(Demands, populationNumber);
             //2. Obliczenie funkcji celu dla kazdego osobnika z populacji
             ObjectiveFunctionForPopulation(Population);
+            Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+
             while (true)
             {
+                bestSolutionPreviousGeneration = Population[0].objectiveFunctionResult;
+
                 //3. Krzyzówki osobników
                 for (int i = 0; i < populationNumber / 2; i += 2)
                 {
@@ -127,6 +154,25 @@ namespace OAST_Projekt1
                 //5. Usuwanie najsłabszych osobników
                 Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
+                bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
+
+                //Sprawdzenie czasu dzialania algorytmu ewolucyjnegoo
+
+              
+                stopwatch.Stop();
+                double time = stopwatch.ElapsedMilliseconds / 1000;
+                stopwatch.Start();
+                algorithmTime = (int)(Math.Ceiling(time));
+
+                //Nastawianie licznika generacji
+                generationsCounter++;
+
+                if (bestSolutionPreviousGeneration > bestSolutionNextGeneration)
+                    ammountOfGenerationsWithoutProgress++;
+               
+                //Sprawdzenie warunku kryterium stopu
+                if (validateStopCriterium(stopCrit))
+                    break;
             }
         }
         //Metoda odpowiedzialna za losowe wygenerowanie populacji początkowej
@@ -206,7 +252,10 @@ namespace OAST_Projekt1
             int randomIndex = rand.Next(0, demand1.UsedPaths.Count);
 
             if (demand1.UsedPaths[randomIndex] == 0)
+            {
                 DistributeLambdas(demand1);
+                mutationCounter++;
+            }
             else
                 demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
             randomIndex = rand.Next(0, demand1.UsedPaths.Count);
@@ -232,6 +281,31 @@ namespace OAST_Projekt1
                 solution.objectiveFunctionResult = Math.Max(0, linkResults.Max());
             }
 
+        }
+
+        bool validateStopCriterium(int stopCriterium)
+        {
+            bool isStop = false;
+            switch (stopCriterium)
+            {
+                case 1:
+                    if (stopParameter < algorithmTime)
+                        isStop = true;
+                    break;
+                case 2:
+                    if(stopParameter < generationsCounter)
+                        isStop = true;
+                    break;
+                case 3:
+                    if (stopParameter < mutationCounter)
+                        isStop = true;
+                    break;
+                case 4:
+                    if (stopParameter < ammountOfGenerationsWithoutProgress)
+                        isStop = true;
+                    break;
+            }
+            return isStop;
         }
 
     }
