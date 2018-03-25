@@ -8,10 +8,7 @@ using System.Threading.Tasks;
 namespace OAST_Projekt1
 {
     class Tester
-    {
-
-        Random rand;
-
+    {   
         string filepath;
 
         Link link;
@@ -20,13 +17,11 @@ namespace OAST_Projekt1
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Link> PathsLinks;
-        List<int> LinksId;
-
+       
         StreamReader streamReader;
 
         public Tester()
-        {
-            
+        {       
             ReadInputFile();
             ChooseProgramMode();
         }
@@ -93,9 +88,6 @@ namespace OAST_Projekt1
 
 
         }
-
-
-
         public void ChooseProgramMode()
         {
             Console.WriteLine("Choose program mode:\n");

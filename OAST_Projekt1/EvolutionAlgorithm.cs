@@ -14,76 +14,21 @@ namespace OAST_Projekt1
         int seed { get; set; }
         int stopCrit { get; set; }
         enum StopCriterium { time, generationsNumber, mutationsNumber, noProgressSolutionNumber };
+        private int mutationCounter = 0;
         Solution solution;
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Solution> Population;
 
-        Random rand = new Random(3);
+        Random rand;
 
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
-            LoadAlgorithmParameters();
-            Population = CreatePopulation(Demands, populationNumber);
-            seed = 43453;
-        }
-        //Generowanie populacji początkowej
-        public List<Solution> CreatePopulation(List<Demand> Demands, int populationNumber)
-        {
-            //Ustalenie liczby osobników w populacji
-            Population = new List<Solution>();
-            for (int i=0; i < populationNumber; i++)
-            {
-                List<Demand> localDemands = new List<Demand>();
-                foreach(Demand demand in Demands)
-                {
-                    localDemands.Add(demand);
-                }
-                Population.Add(solution = new Solution(localDemands));                
-            }
-
-            //Losowanie parametrów dla populacji        
-            foreach (Solution solution in Population)
-            {
-                foreach (Demand demand in solution.Demands)
-                {
-                    demand.UsedPaths.Clear();
-                    for (int l = 1; l <= demand.AvailablePaths.Count; l++)
-                    {
-                        demand.UsedPaths.Add(0);
-                    }
-                    for (int m = 0; m < demand.demandedCapacity; m++)
-                    {
-                        int randomIndex = rand.Next(demand.AvailablePaths.Count());
-                        demand.UsedPaths[randomIndex] = demand.UsedPaths[randomIndex] + 1;
-                        
-                    }
-                }
-
-            }
-            return Population;
-        }
-        //Metoda odpowiadająca za krzyżowanie 
-        public Solution Crossover(Solution parent1, Solution parent2)
-        {
-            Solution child1 = parent1;
-            Solution child2 = parent2;
-            return child1;
-        }
-        //Metoda odpowiadająca za mutację
-        public Solution Mutation(Solution solutionForMute)
-        {
-            Solution mutadedSolution = solutionForMute;
-            return mutadedSolution;
-        }
-        //Metoda odpowiedzialna za obliczanie przystosowania z funkcji celu
-        public double CalculateAdaptation(Solution solutionForAdaptation)
-        {
-            double adaptation = 1.0;
-            return adaptation;
+            LoadAlgorithmParameters();         
+            InitiateAlgorithm();
         }
         //Metoda odpowiedzialna za wczytanie parametrow algorytmu
-        public void LoadAlgorithmParameters()
+        void LoadAlgorithmParameters()
         {
             Console.WriteLine("Type parameters for your simulation:");
             #region LoadPopulation
@@ -151,6 +96,7 @@ namespace OAST_Projekt1
             try
             {
                 seed = Int32.Parse(Console.ReadLine());
+                rand = new Random(seed);
             }
             catch
             {
@@ -159,5 +105,136 @@ namespace OAST_Projekt1
             }
             #endregion
         }
+        //Metoda w której znajduje się główna pętla programu
+        void InitiateAlgorithm()
+        {
+            //1. Stworzenie populacji
+            Population = CreatePopulation(Demands, populationNumber);
+            //2. Obliczenie funkcji celu dla kazdego osobnika z populacji
+            ObjectiveFunctionForPopulation(Population);
+            while (true)
+            {
+                //3. Krzyzówki osobników
+                for (int i = 0; i < populationNumber / 2; i += 2)
+                {
+                    Population.Add(Crossover(Population[i], Population[i + 1]));
+                }
+                //4. Mutacje osobników
+                for (int i = 0; i < populationNumber; i++)
+                {
+                    Population.Add(Mutation(Population[i]));
+                }
+                //5. Usuwanie najsłabszych osobników
+                Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+                Population.RemoveRange(populationNumber, Population.Count - populationNumber);
+            }
+        }
+        //Metoda odpowiedzialna za losowe wygenerowanie populacji początkowej
+        public List<Solution> CreatePopulation(List<Demand> Demands, int populationNumber)
+        {
+            //Ustalenie liczby osobników w populacji
+            Population = new List<Solution>();
+            for (int i = 0; i < populationNumber; i++)
+            {
+                List<Demand> localDemands = new List<Demand>();
+                foreach (Demand demand in Demands)
+                {
+                    localDemands.Add(demand);
+                }
+                Population.Add(solution = new Solution(localDemands));
+            }
+
+            //Losowanie parametrów dla populacji        
+            foreach (Solution solution in Population)
+            {
+                foreach (Demand demand in solution.Demands)
+                {
+                    demand.UsedPaths.Clear();
+                    for (int l = 1; l <= demand.AvailablePaths.Count; l++)
+                    {
+                        demand.UsedPaths.Add(0);
+                    }
+                    for (int m = 0; m < demand.demandedCapacity; m++)
+                    {
+                        int randomIndex = rand.Next(demand.AvailablePaths.Count());
+                        demand.UsedPaths[randomIndex] = demand.UsedPaths[randomIndex] + 1;
+
+                    }
+                }
+
+            }
+            Crossover(Population[0], Population[1]);
+            Mutation(Population[0]);
+            return Population;
+        }
+        //Metoda odpowiadająca za krzyżowanie 
+        Solution Crossover(Solution parent1, Solution parent2)
+        {
+            Solution child = new Solution();
+
+            if (rand.NextDouble() < crossoverProbability)
+            {
+                for (int i = 0; i < parent1.Demands.Count; i++)
+                {
+                    if (rand.Next(0, 2) < 1)
+                    {
+                        child.Demands.Add(parent1.Demands[i]);
+                    }
+                    else
+                        child.Demands.Add(parent2.Demands[i]);
+                }
+            }
+            return child;
+        }
+        //Metoda odpowiadająca za mutację
+        Solution Mutation(Solution solutionForMute)
+        {
+            Solution mutadedSolution = new Solution(solutionForMute);
+
+            foreach (Demand demand1 in solutionForMute.Demands)
+            {
+                if (rand.NextDouble() < mutationProbability)
+                {
+                    DistributeLambdas(demand1);
+                }
+            }
+            return solutionForMute;
+        }
+        //Metoda odpowiadająca za rożdział lambd przy mutacji
+        void DistributeLambdas(Demand demand1)
+        {
+            int randomIndex = rand.Next(0, demand1.UsedPaths.Count);
+
+            if (demand1.UsedPaths[randomIndex] == 0)
+                DistributeLambdas(demand1);
+            else
+                demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
+            randomIndex = rand.Next(0, demand1.UsedPaths.Count);
+            demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] + 1;
+        }
+        //Metoda uzywana do obliczania funkcji celu dla całej populacji
+        void ObjectiveFunctionForPopulation(List<Solution> Population)
+        {
+            foreach (Solution solution in Population)
+            {
+                List<int> linkResults = new List<int>();
+                foreach (Demand demand in solution.Demands)
+                {
+                    foreach (Path path in demand.AvailablePaths)
+                    {
+                        foreach (Link link in path.Links)
+                        {
+                            linkResults.Add(Math.Max(0, link.usedCapacity - link.capacity));
+                        }
+                    }
+
+                }
+                solution.objectiveFunctionResult = Math.Max(0, linkResults.Max());
+            }
+
+        }
+
     }
 }
+
+

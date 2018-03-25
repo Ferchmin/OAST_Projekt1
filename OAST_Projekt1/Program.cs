@@ -12,7 +12,6 @@ namespace OAST_Projekt1
         {
             Tester tester = new Tester();
             Console.ReadLine();
-
         }
     }
 }

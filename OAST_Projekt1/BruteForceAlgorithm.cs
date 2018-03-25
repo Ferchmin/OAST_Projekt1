@@ -14,8 +14,6 @@ namespace OAST_Projekt1
 
         List<List<int>> possibleCombinations = new List<List<int>>();
 
-        Random rand;
-
         public BruteForceAlgorithm(List<Link> links, List<Demand> demands)
         {
             this.links = links;
