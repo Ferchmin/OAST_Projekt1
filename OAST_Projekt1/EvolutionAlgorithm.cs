@@ -156,9 +156,7 @@ namespace OAST_Projekt1
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
                 bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
 
-                //Sprawdzenie czasu dzialania algorytmu ewolucyjnegoo
-
-              
+                //Sprawdzenie czasu dzialania algorytmu ewolucyjnego
                 stopwatch.Stop();
                 double time = stopwatch.ElapsedMilliseconds / 1000;
                 stopwatch.Start();
@@ -171,7 +169,7 @@ namespace OAST_Projekt1
                     ammountOfGenerationsWithoutProgress++;
                
                 //Sprawdzenie warunku kryterium stopu
-                if (validateStopCriterium(stopCrit))
+                if (ValidateStopCriterium(stopCrit))
                     break;
             }
         }
@@ -189,7 +187,6 @@ namespace OAST_Projekt1
                 }
                 Population.Add(solution = new Solution(localDemands));
             }
-
             //Losowanie parametrów dla populacji        
             foreach (Solution solution in Population)
             {
@@ -207,10 +204,7 @@ namespace OAST_Projekt1
 
                     }
                 }
-
             }
-            Crossover(Population[0], Population[1]);
-            Mutation(Population[0]);
             return Population;
         }
         //Metoda odpowiadająca za krzyżowanie 
@@ -242,6 +236,7 @@ namespace OAST_Projekt1
                 if (rand.NextDouble() < mutationProbability)
                 {
                     DistributeLambdas(demand1);
+                    mutationCounter++;
                 }
             }
             return solutionForMute;
@@ -254,7 +249,7 @@ namespace OAST_Projekt1
             if (demand1.UsedPaths[randomIndex] == 0)
             {
                 DistributeLambdas(demand1);
-                mutationCounter++;
+                
             }
             else
                 demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
@@ -283,7 +278,7 @@ namespace OAST_Projekt1
 
         }
 
-        bool validateStopCriterium(int stopCriterium)
+        bool ValidateStopCriterium(int stopCriterium)
         {
             bool isStop = false;
             switch (stopCriterium)

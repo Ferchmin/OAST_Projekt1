@@ -31,7 +31,8 @@ namespace OAST_Projekt1
             //Console.WriteLine("Drag and drop input file and press ENTER to load data for algorithm");
             try
             {
-                //filepath = Console.ReadLine();
+                
+               // filepath = Console.ReadLine();
                 filepath = "Network.txt";
                 streamReader = new StreamReader(filepath);
             }
