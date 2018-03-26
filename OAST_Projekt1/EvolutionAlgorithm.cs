@@ -23,6 +23,7 @@ namespace OAST_Projekt1
         long algorithmTime { get; set; }
  
         Solution solution;
+        Solution child;
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Solution> Population;
@@ -143,8 +144,8 @@ namespace OAST_Projekt1
 
                 //3. Krzyzówki osobników
                 for (int i = 0; i < populationNumber / 2; i += 2)
-                {
-                    Population.Add(Crossover(Population[i], Population[i + 1]));
+                {               
+                    Crossover(Population[i], Population[i + 1]);
                 }
                 //4. Mutacje osobników
                 for (int i = 0; i < populationNumber; i++)
@@ -169,7 +170,7 @@ namespace OAST_Projekt1
                     ammountOfGenerationsWithoutProgress++;
                
                 //Sprawdzenie warunku kryterium stopu
-                if (ValidateStopCriterium(stopCrit))
+                if (validateStopCriterium(stopCrit))
                     break;
             }
         }
@@ -208,9 +209,9 @@ namespace OAST_Projekt1
             return Population;
         }
         //Metoda odpowiadająca za krzyżowanie 
-        Solution Crossover(Solution parent1, Solution parent2)
+        void Crossover(Solution parent1, Solution parent2)
         {
-            Solution child = new Solution();
+           child = new Solution();
 
             if (rand.NextDouble() < crossoverProbability)
             {
@@ -223,8 +224,10 @@ namespace OAST_Projekt1
                     else
                         child.Demands.Add(parent2.Demands[i]);
                 }
+                Population.Add(child);
             }
-            return child;
+           
+          
         }
         //Metoda odpowiadająca za mutację
         Solution Mutation(Solution solutionForMute)
@@ -278,7 +281,7 @@ namespace OAST_Projekt1
 
         }
 
-        bool ValidateStopCriterium(int stopCriterium)
+        bool validateStopCriterium(int stopCriterium)
         {
             bool isStop = false;
             switch (stopCriterium)
