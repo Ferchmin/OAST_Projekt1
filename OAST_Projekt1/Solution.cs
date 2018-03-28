@@ -8,12 +8,13 @@ namespace OAST_Projekt1
 {
     class Solution
     {
+        public List<Link> links = new List<Link>();
         public List<Demand> Demands = new List<Demand>();
         public int objectiveFunctionResult;
-        // Dictionary<Demand, List<int>> UsedPathsNumberForDemand = new Dictionary<Demand, List<int>>();
 
-        public Solution(List<Demand> Demands)
+        public Solution(List<Demand> Demands, List<Link> links)
         {
+            this.links = links;
             foreach (Demand demand in Demands)
             {
                 Demand copy = new Demand(demand);
@@ -34,6 +35,64 @@ namespace OAST_Projekt1
                 Demand copy = new Demand(demands);
                 this.Demands.Add(copy);
             }
+        }
+
+        public void print()
+        {
+            Console.WriteLine("Objective function result: " + objectiveFunctionResult);
+            List<int> usedLinks = new List<int>();
+            foreach (Link link in links)
+            {
+                usedLinks.Add(0);
+            }
+            foreach(Demand demand in Demands)
+            {
+                for(int i=0;i < demand.AvailablePaths.Count; i++)
+                {
+                    if(demand.UsedPaths[i] != 0)
+                    {
+                        foreach(Link link in demand.AvailablePaths[i].Links)
+                        {
+                            usedLinks[link.id - 1] = usedLinks[link.id - 1] + demand.UsedPaths[i];
+                        }
+                    }
+                }
+            }
+            Console.WriteLine("Used links: ");
+            for(int i = 0; i < usedLinks.Count; i++)
+            {
+                Console.WriteLine("Link #" + (i + 1) + ": " + usedLinks[i]);
+            }
+        }
+
+        public String printToFile()
+        {
+            String textToPrint = "";
+            textToPrint += "Objective function result:" + objectiveFunctionResult + Environment.NewLine;
+            List<int> usedLinks = new List<int>();
+            foreach (Link link in links)
+            {
+                usedLinks.Add(0);
+            }
+            foreach (Demand demand in Demands)
+            {
+                for (int i = 0; i < demand.AvailablePaths.Count; i++)
+                {
+                    if (demand.UsedPaths[i] != 0)
+                    {
+                        foreach (Link link in demand.AvailablePaths[i].Links)
+                        {
+                            usedLinks[link.id - 1] = usedLinks[link.id - 1] + demand.UsedPaths[i];
+                        }
+                    }
+                }
+            }
+            textToPrint += "Used links: " + Environment.NewLine;
+            for (int i = 0; i < usedLinks.Count; i++)
+            {
+                textToPrint += "Link #" + (i + 1) + ": " + usedLinks[i] + Environment.NewLine;
+            }
+            return textToPrint;
         }
     }
  }

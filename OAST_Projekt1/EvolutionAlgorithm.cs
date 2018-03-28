@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,8 +31,12 @@ namespace OAST_Projekt1
 
         Random rand;
 
+        TextWriter tw = new StreamWriter("evolutionResult.txt", true);
+
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
+            this.Links = Links;
+            this.Demands = Demands;
             LoadAlgorithmParameters();         
             InitiateAlgorithm(Demands);
         }
@@ -157,6 +162,9 @@ namespace OAST_Projekt1
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
                 bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
 
+                //Ponowne obliczenie funkcji celu dla kazdego osobnika
+                ObjectiveFunctionForPopulation(Population);
+
                 //Sprawdzenie czasu dzialania algorytmu ewolucyjnego
                 stopwatch.Stop();
                 double time = stopwatch.ElapsedMilliseconds / 1000;
@@ -167,13 +175,26 @@ namespace OAST_Projekt1
                 generationsCounter++;
 
                 if (bestSolutionPreviousGeneration > bestSolutionNextGeneration)
+                {
                     ammountOfGenerationsWithoutProgress++;
-               
+                }
+
+                //Wypisanie parametrow najlepszego osobnika (zawsze jest to pierwszy osobnik bo tak sa posortowane)
+                Console.WriteLine("Generation #" + generationsCounter);
+
+                //Wypisanie parametrow najlepszego osobnika do pliku
+                tw.WriteLine("Generation #" + generationsCounter);
+                tw.WriteLine(Population[0].printToFile());
+
                 //Sprawdzenie warunku kryterium stopu
                 if (validateStopCriterium(stopCrit))
+                {
                     break;
+                }
+                    
             }
         }
+
         //Metoda odpowiedzialna za losowe wygenerowanie populacji początkowej
         public List<Solution> CreatePopulation(List<Demand> Demands, int populationNumber)
         {
@@ -186,7 +207,7 @@ namespace OAST_Projekt1
                 {
                     localDemands.Add(demand);
                 }
-                Population.Add(solution = new Solution(localDemands));
+                Population.Add(solution = new Solution(localDemands,Links));
             }
             //Losowanie parametrów dla populacji        
             foreach (Solution solution in Population)

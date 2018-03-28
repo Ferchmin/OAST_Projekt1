@@ -18,9 +18,10 @@ namespace OAST_Projekt1
         {
             this.links = links;
             this.demands = demands;
-            this.solution = new Solution(demands);
+            this.solution = new Solution(demands,links);
             solveBruteForceAlgorithm();
         }
+
 
         List<List<int>> prepareAllPossibleCombinations(IEnumerable<int> input, int lenght,int demandSum)
         {
@@ -46,16 +47,20 @@ namespace OAST_Projekt1
             return possibleCombinations;
         }
 
-        static IEnumerable<String> CombinationsWithRepition(IEnumerable<int> input, int length)
+        void prepareAllPossibleSolutions(List<Demand> demands)
         {
-            if (length <= 0)
-                yield return "";
-            else
+            List<Solution> possibleSoltions = new List<Solution>();
+
+            foreach (Demand demand in demands)
             {
-                foreach (var i in input)
-                    foreach (var c in CombinationsWithRepition(input, length - 1))
-                        yield return i.ToString() + c;
+                var input = new List<int>();
+                for (int i = 0; i <= demand.demandedCapacity; i++) input.Add(i);
+                var possibleCombinations = prepareAllPossibleCombinations(input, demand.AvailablePaths.Count, demand.demandedCapacity);
+                demand.possibleSolutions = possibleCombinations;
             }
+
+
+
         }
 
         void solveBruteForceAlgorithm()
@@ -64,6 +69,9 @@ namespace OAST_Projekt1
             {
                 link.usedCapacity = 0;
             }
+
+            var allPossibleCombinations = new List<List<List<int>>>();
+
 
             foreach(Demand demand in demands)
             {
@@ -103,6 +111,18 @@ namespace OAST_Projekt1
             }
 
             return Math.Max(0, linkResults.Max());
+        }
+
+        static IEnumerable<String> CombinationsWithRepition(IEnumerable<int> input, int length)
+        {
+            if (length <= 0)
+                yield return "";
+            else
+            {
+                foreach (var i in input)
+                    foreach (var c in CombinationsWithRepition(input, length - 1))
+                        yield return i.ToString() + c;
+            }
         }
 
     }

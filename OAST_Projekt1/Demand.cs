@@ -14,6 +14,7 @@ namespace OAST_Projekt1
         public int demandedCapacity { get; set; }
         public List<Path> AvailablePaths { get; set; }
         public List<int> UsedPaths { get; set; }
+        public List<List<int>> possibleSolutions = new List<List<int>>();
 
         public Demand(int id, int firstNode, int secondNode, int demandedCapacity, List<Path> AvailablePaths, List<int> UsedPaths)
         {
@@ -23,7 +24,6 @@ namespace OAST_Projekt1
             this.demandedCapacity = demandedCapacity;
             this.AvailablePaths = AvailablePaths;
             this.UsedPaths = UsedPaths;
-
         }
 
         public Demand(int id, int firstNode, int secondNode, int demandedCapacity)
