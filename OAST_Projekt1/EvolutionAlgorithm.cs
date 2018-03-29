@@ -153,18 +153,19 @@ namespace OAST_Projekt1
                     Crossover(Population[i], Population[i + 1]);
                 }
                 //4. Mutacje osobników
-                for (int i = 0; i < populationNumber; i++)
-                {
-                    Mutation(Population[i]);
-                }
+                //for (int i = 0; i < populationNumber; i++)
+                //{
+                  //  Mutation(Population[i]);
+                //}
+
+                //Ponowne obliczenie funkcji celu dla kazdego osobnika
+                ObjectiveFunctionForPopulation(Population);
+
                 //5. Usuwanie najsłabszych osobników
                 //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
                 Population = Population.OrderBy(x => x.objectiveFunctionResult).ToList();
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
                 bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
-
-                //Ponowne obliczenie funkcji celu dla kazdego osobnika
-                ObjectiveFunctionForPopulation(Population);
 
                 //Sprawdzenie czasu dzialania algorytmu ewolucyjnego
                 stopwatch.Stop();
@@ -175,7 +176,7 @@ namespace OAST_Projekt1
                 //Nastawianie licznika generacji
                 generationsCounter++;
 
-                if (bestSolutionPreviousGeneration > bestSolutionNextGeneration)
+                if (bestSolutionPreviousGeneration < bestSolutionNextGeneration)
                 {
                     ammountOfGenerationsWithoutProgress++;
                 }
@@ -243,11 +244,12 @@ namespace OAST_Projekt1
                 {
                     if (rand.Next(0, 2) < 1)
                     {
-                        child.Demands.Add(parent1.Demands[i]);
+                        child.Demands.Add(new Demand(parent1.Demands[i]));
                     }
                     else
-                        child.Demands.Add(parent2.Demands[i]);
+                        child.Demands.Add(new Demand(parent2.Demands[i]));
                 }
+                Mutation(child);
                 Population.Add(child);
             }
            
@@ -258,14 +260,13 @@ namespace OAST_Projekt1
         {
             Solution mutadedSolution = new Solution(solutionForMute);
 
-            foreach (Demand demand1 in solutionForMute.Demands)
+            if (rand.NextDouble() < mutationProbability)
             {
-                if (rand.NextDouble() < mutationProbability)
-                {
-                    DistributeLambdas(demand1);
-                    mutationCounter++;
-                }
+                int index = rand.Next(0, solutionForMute.Demands.Count);
+                DistributeLambdas(solutionForMute.Demands[index]);
+                mutationCounter++;
             }
+            
            
         }
         //Metoda odpowiadająca za rożdział lambd przy mutacji
