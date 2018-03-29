@@ -60,9 +60,9 @@ namespace OAST_Projekt1
             Console.WriteLine("Type probability of mutation for example 0,01:");
             try
             {
-                crossoverProbability = Double.Parse(Console.ReadLine());
-                if (crossoverProbability > 1)
-                    crossoverProbability = 1;
+                mutationProbability = Double.Parse(Console.ReadLine());
+                if (mutationProbability > 1)
+                    mutationProbability = 1;
             }
             catch
             {
@@ -74,7 +74,7 @@ namespace OAST_Projekt1
             Console.WriteLine("Type probability of crossover for example 0,01:");
             try
             {
-                mutationProbability = Double.Parse(Console.ReadLine());
+                crossoverProbability = Double.Parse(Console.ReadLine());
             }
             catch
             {
@@ -141,7 +141,6 @@ namespace OAST_Projekt1
             Population = CreatePopulation(Demands, populationNumber);
             //2. Obliczenie funkcji celu dla kazdego osobnika z populacji
             ObjectiveFunctionForPopulation(Population);
-            //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
             Population = Population.OrderBy(x => x.objectiveFunctionResult).ToList();
 
             while (true)
@@ -149,14 +148,14 @@ namespace OAST_Projekt1
                 bestSolutionPreviousGeneration = Population[0].objectiveFunctionResult;
 
                 //3. Krzyzówki osobników
-                for (int i = 0; i < populationNumber / 2; i += 2)
+                for (int i = 0; i < populationNumber; i += 2)
                 {               
                     Crossover(Population[i], Population[i + 1]);
                 }
                 //4. Mutacje osobników
                 for (int i = 0; i < populationNumber; i++)
                 {
-                    Population.Add(Mutation(Population[i]));
+                    Mutation(Population[i]);
                 }
                 //5. Usuwanie najsłabszych osobników
                 //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
@@ -236,7 +235,7 @@ namespace OAST_Projekt1
         void Crossover(Solution parent1, Solution parent2)
         {
            child = new Solution();
-            child.links = parent1.links;
+           child.links = parent1.links;
 
             if (rand.NextDouble() < crossoverProbability)
             {
@@ -255,7 +254,7 @@ namespace OAST_Projekt1
           
         }
         //Metoda odpowiadająca za mutację
-        Solution Mutation(Solution solutionForMute)
+        void Mutation(Solution solutionForMute)
         {
             Solution mutadedSolution = new Solution(solutionForMute);
 
@@ -267,7 +266,7 @@ namespace OAST_Projekt1
                     mutationCounter++;
                 }
             }
-            return solutionForMute;
+           
         }
         //Metoda odpowiadająca za rożdział lambd przy mutacji
         void DistributeLambdas(Demand demand1)
@@ -277,12 +276,13 @@ namespace OAST_Projekt1
             if (demand1.UsedPaths[randomIndex] == 0)
             {
                 DistributeLambdas(demand1);
-                
             }
             else
-            demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
-            randomIndex = rand.Next(0, demand1.UsedPaths.Count);
-            demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] + 1;
+            {
+                demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
+                randomIndex = rand.Next(0, demand1.UsedPaths.Count);
+                demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] + 1;
+            }
         }
         //Metoda uzywana do obliczania funkcji celu dla całej populacji
         void ObjectiveFunctionForPopulation(List<Solution> Population)

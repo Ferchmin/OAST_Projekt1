@@ -90,7 +90,7 @@ namespace OAST_Projekt1
 
             for (int i = 0; i < links.Count; i++)
             {
-                linkResults.Add(Math.Max(usedLinks[i], links[i].capacity));
+                linkResults.Add(Math.Max(0,usedLinks[i] - links[i].capacity));
             }
             return Math.Max(0, linkResults.Max());
         }
