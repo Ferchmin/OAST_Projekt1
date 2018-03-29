@@ -29,6 +29,7 @@ namespace OAST_Projekt1
 
         public Solution(Solution solution)
         {
+            this.links = solution.links;
             this.objectiveFunctionResult = solution.objectiveFunctionResult;
             foreach (Demand demands in solution.Demands)
             {
@@ -63,6 +64,35 @@ namespace OAST_Projekt1
             {
                 Console.WriteLine("Link #" + (i + 1) + ": " + usedLinks[i]);
             }
+        }
+
+        public int objectiveFunction()
+        {
+            List<int> usedLinks = new List<int>();
+            foreach (Link link in links)
+            {
+                usedLinks.Add(0);
+            }
+            foreach (Demand demand in Demands)
+            {
+                for (int i = 0; i < demand.AvailablePaths.Count; i++)
+                {
+                    if (demand.UsedPaths[i] != 0)
+                    {
+                        foreach (Link link in demand.AvailablePaths[i].Links)
+                        {
+                            usedLinks[link.id - 1] = usedLinks[link.id - 1] + demand.UsedPaths[i];
+                        }
+                    }
+                }
+            }
+            List<int> linkResults = new List<int>();
+
+            for (int i = 0; i < links.Count; i++)
+            {
+                linkResults.Add(Math.Max(usedLinks[i], links[i].capacity));
+            }
+            return Math.Max(0, linkResults.Max());
         }
 
         public String printToFile()

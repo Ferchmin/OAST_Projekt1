@@ -31,7 +31,7 @@ namespace OAST_Projekt1
 
         Random rand;
 
-        TextWriter tw = new StreamWriter("evolutionResult.txt", true);
+        TextWriter tw = new StreamWriter("evolutionResult.txt", false);
 
         public EvolutionAlgorithm(List<Link> Links, List<Demand> Demands)
         {
@@ -141,7 +141,8 @@ namespace OAST_Projekt1
             Population = CreatePopulation(Demands, populationNumber);
             //2. Obliczenie funkcji celu dla kazdego osobnika z populacji
             ObjectiveFunctionForPopulation(Population);
-            Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+            //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+            Population = Population.OrderBy(x => x.objectiveFunctionResult).ToList();
 
             while (true)
             {
@@ -158,7 +159,8 @@ namespace OAST_Projekt1
                     Population.Add(Mutation(Population[i]));
                 }
                 //5. Usuwanie najsłabszych osobników
-                Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+                //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+                Population = Population.OrderBy(x => x.objectiveFunctionResult).ToList();
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
                 bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
 
@@ -181,6 +183,7 @@ namespace OAST_Projekt1
 
                 //Wypisanie parametrow najlepszego osobnika (zawsze jest to pierwszy osobnik bo tak sa posortowane)
                 Console.WriteLine("Generation #" + generationsCounter);
+                //Population[0].print();
 
                 //Wypisanie parametrow najlepszego osobnika do pliku
                 tw.WriteLine("Generation #" + generationsCounter);
@@ -233,6 +236,7 @@ namespace OAST_Projekt1
         void Crossover(Solution parent1, Solution parent2)
         {
            child = new Solution();
+            child.links = parent1.links;
 
             if (rand.NextDouble() < crossoverProbability)
             {
@@ -276,7 +280,7 @@ namespace OAST_Projekt1
                 
             }
             else
-                demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
+            demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] - 1;
             randomIndex = rand.Next(0, demand1.UsedPaths.Count);
             demand1.UsedPaths[randomIndex] = demand1.UsedPaths[randomIndex] + 1;
         }
@@ -285,22 +289,11 @@ namespace OAST_Projekt1
         {
             foreach (Solution solution in Population)
             {
-                List<int> linkResults = new List<int>();
-                foreach (Demand demand in solution.Demands)
-                {
-                    foreach (Path path in demand.AvailablePaths)
-                    {
-                        foreach (Link link in path.Links)
-                        {
-                            linkResults.Add(Math.Max(0, link.usedCapacity - link.capacity));
-                        }
-                    }
-
-                }
-                solution.objectiveFunctionResult = Math.Max(0, linkResults.Max());
+                solution.objectiveFunctionResult = solution.objectiveFunction();
             }
-
         }
+
+
 
         bool validateStopCriterium(int stopCriterium)
         {
