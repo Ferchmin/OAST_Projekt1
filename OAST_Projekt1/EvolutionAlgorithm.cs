@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,7 +25,7 @@ namespace OAST_Projekt1
         long algorithmTime { get; set; }
  
         Solution solution;
-        Solution child;
+       
         List<Link> Links = new List<Link>();
         List<Demand> Demands = new List<Demand>();
         List<Solution> Population;
@@ -147,29 +148,23 @@ namespace OAST_Projekt1
             {
                 bestSolutionPreviousGeneration = Population[0].objectiveFunctionResult;
 
-                //3. Krzyzówki osobników
+                //3. Krzyzówki oraz mutacje
                 for (int i = 0; i < populationNumber; i += 2)
                 {               
                     Crossover(Population[i], Population[i + 1]);
                 }
-                //4. Mutacje osobników
-                //for (int i = 0; i < populationNumber; i++)
-                //{
-                  //  Mutation(Population[i]);
-                //}
-
+               
                 //Ponowne obliczenie funkcji celu dla kazdego osobnika
                 ObjectiveFunctionForPopulation(Population);
 
-                //5. Usuwanie najsłabszych osobników
-                //Population = Population.OrderByDescending(x => x.objectiveFunctionResult).ToList();
+                //4. Usuwanie najsłabszych osobników
                 Population = Population.OrderBy(x => x.objectiveFunctionResult).ToList();
                 Population.RemoveRange(populationNumber, Population.Count - populationNumber);
                 bestSolutionNextGeneration = Population[0].objectiveFunctionResult;
 
                 //Sprawdzenie czasu dzialania algorytmu ewolucyjnego
                 stopwatch.Stop();
-                double time = stopwatch.ElapsedMilliseconds / 1000;
+                double time = stopwatch.ElapsedMilliseconds;
                 stopwatch.Start();
                 algorithmTime = (int)(Math.Ceiling(time));
 
@@ -190,8 +185,9 @@ namespace OAST_Projekt1
                 tw.WriteLine(Population[0].printToFile());
 
                 //Sprawdzenie warunku kryterium stopu
-                if (validateStopCriterium(stopCrit))
+                if (validateStopCriterium(stopCrit) || Population[0].objectiveFunctionResult==0)
                 {
+                    Console.WriteLine("Solution was found or stop criterium was met. Time: " + time + " [ms]");
                     break;
                 }
                     
@@ -235,8 +231,11 @@ namespace OAST_Projekt1
         //Metoda odpowiadająca za krzyżowanie 
         void Crossover(Solution parent1, Solution parent2)
         {
-           child = new Solution();
-           child.links = parent1.links;
+            Solution child1 = new Solution();
+            Solution child2 = new Solution();
+
+            child1.links = parent1.links;
+            child2.links = parent2.links;
 
             if (rand.NextDouble() < crossoverProbability)
             {
@@ -244,13 +243,19 @@ namespace OAST_Projekt1
                 {
                     if (rand.Next(0, 2) < 1)
                     {
-                        child.Demands.Add(new Demand(parent1.Demands[i]));
+                        child1.Demands.Add(new Demand(parent1.Demands[i]));
+                        child2.Demands.Add(new Demand(parent2.Demands[i]));
                     }
                     else
-                        child.Demands.Add(new Demand(parent2.Demands[i]));
+                    {
+                        child1.Demands.Add(new Demand(parent2.Demands[i]));
+                        child2.Demands.Add(new Demand(parent1.Demands[i]));
+                    }
                 }
-                Mutation(child);
-                Population.Add(child);
+                Mutation(child1);
+                Mutation(child2);
+                Population.Add(child1);
+                Population.Add(child2);
             }
            
           
@@ -277,6 +282,7 @@ namespace OAST_Projekt1
             if (demand1.UsedPaths[randomIndex] == 0)
             {
                 DistributeLambdas(demand1);
+                
             }
             else
             {
@@ -302,19 +308,19 @@ namespace OAST_Projekt1
             switch (stopCriterium)
             {
                 case 1:
-                    if (stopParameter < algorithmTime)
+                    if (stopParameter <= algorithmTime)
                         isStop = true;
                     break;
                 case 2:
-                    if(stopParameter < generationsCounter)
+                    if(stopParameter <= generationsCounter)
                         isStop = true;
                     break;
                 case 3:
-                    if (stopParameter < mutationCounter)
+                    if (stopParameter <= mutationCounter)
                         isStop = true;
                     break;
                 case 4:
-                    if (stopParameter < ammountOfGenerationsWithoutProgress)
+                    if (stopParameter <= ammountOfGenerationsWithoutProgress)
                         isStop = true;
                     break;
             }
