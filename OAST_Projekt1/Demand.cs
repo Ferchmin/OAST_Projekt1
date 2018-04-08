@@ -55,6 +55,12 @@ namespace OAST_Projekt1
             {
                 UsedPaths.Add(path);
             }
+
+            this.possibleSolutions = new List<List<int>>();
+            foreach(var solution in demand.possibleSolutions)
+            {
+                possibleSolutions.Add(solution);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,94 +13,125 @@ namespace OAST_Projekt1
         List<Demand> demands;
         Solution solution;
 
-        List<List<int>> possibleCombinations = new List<List<int>>();
+        TextWriter tw2 = new StreamWriter("bruteForceResult.txt", false);
+
+        //List<List<int>> possibleCombinations = new List<List<int>>();
 
         public BruteForceAlgorithm(List<Link> links, List<Demand> demands)
         {
             this.links = links;
             this.demands = demands;
             this.solution = new Solution(demands,links);
-            solveBruteForceAlgorithm();
-        }
 
+            //Lista wszystkich kombinacji dla demandow
+            var allPossibleCombinations = new List<List<List<int>>>();
 
-        List<List<int>> prepareAllPossibleCombinations(IEnumerable<int> input, int lenght,int demandSum)
-        {
-            var possibleScenarios = new List<List<int>>();
-            foreach (var c in CombinationsWithRepition(input, lenght))
-            {
-                var intArray = new List<int>();
-                foreach (char character in c)
-                {
-                    int tmpInt = int.Parse(character.ToString());
-                    intArray.Add(tmpInt);
-                }
-                var sum = 0;
-                foreach (int number in intArray)
-                {
-                    sum += number;
-                }
-                if (sum == demandSum)
-                {
-                    possibleCombinations.Add(intArray);
-                }
-            }
-            return possibleCombinations;
-        }
+            //Najwyzsza liczba mozliwych rozwiazan
+            var highestNumberOfPossibleSolutions = 0;
 
-        void prepareAllPossibleSolutions(List<Demand> demands)
-        {
-            List<Solution> possibleSoltions = new List<Solution>();
-
+            //Kombinacje z powtorzeniami dla kazdego pojedynczego demanda
             foreach (Demand demand in demands)
             {
                 var input = new List<int>();
                 for (int i = 0; i <= demand.demandedCapacity; i++) input.Add(i);
-                var possibleCombinations = prepareAllPossibleCombinations(input, demand.AvailablePaths.Count, demand.demandedCapacity);
+                var possibleCombinations = new List<List<int>>();
+                possibleCombinations = preparePossibleSolutionsForDemand(input, demand.AvailablePaths.Count, demand.demandedCapacity);
                 demand.possibleSolutions = possibleCombinations;
+                if(possibleCombinations.Count > highestNumberOfPossibleSolutions)
+                {
+                    highestNumberOfPossibleSolutions = possibleCombinations.Count;
+                }
             }
+            List<int> inputForCombinations = new List<int>();
+            for(int i = 0; i < highestNumberOfPossibleSolutions; i++)
+            {
+                inputForCombinations.Add(i);
+            }
+            
+            var allPosibleCombinationsOfSolutions = prepareAllPossibleCombinationsOfSolutions(inputForCombinations, demands.Count);
+            Console.WriteLine("liczba mozliwych rozwiazan: " + allPosibleCombinationsOfSolutions.Count);
 
-
-
+            solveBruteForceAlgorithm(allPosibleCombinationsOfSolutions);
         }
 
-        void solveBruteForceAlgorithm()
+        void solveBruteForceAlgorithm(List<List<int>> allPossibleSolutions)
         {
             foreach (Link link in this.links)
             {
                 link.usedCapacity = 0;
             }
-
-            var allPossibleCombinations = new List<List<List<int>>>();
-
-
-            foreach(Demand demand in demands)
+            
+            foreach(var solutionList in allPossibleSolutions)
             {
-                var input = new List<int>();
-                for(int i = 0; i <= demand.demandedCapacity; i++) input.Add(i);
-                var possibleCombinations = prepareAllPossibleCombinations(input, demand.AvailablePaths.Count, demand.demandedCapacity);
-
-                foreach(List<int> combination in possibleCombinations)
+                var solution = new Solution(demands, links);
+                for(int i = 0; i < solution.Demands.Count; i++)
                 {
-                    for (int i = 0; i < demand.AvailablePaths.Count; i++)
+                    solution.Demands[i].UsedPaths = solution.Demands[i].possibleSolutions[solutionList[i]];
+                }
+                solution.objectiveFunctionResult = solution.objectiveFunction();
+                if(solution.objectiveFunctionResult == 0)
+                {
+                    solution.print();
+                    tw2.WriteLine(solution.printToFile());
+                    break;
+                }
+            }
+        }
+
+
+        List<List<int>> preparePossibleSolutionsForDemand(IEnumerable<int> input, int lenght,int demandSum)
+        {
+            var possibleCombinations = new List<List<int>>();
+            var possibleCombinationsEnumerable = GetCombinations(input, lenght);
+            foreach (var combination in possibleCombinationsEnumerable)
+            {
+                possibleCombinations.Add(combination.ToList());
+            }
+            var goodCombinations = new List<List<int>>();
+            foreach(var combination in possibleCombinations)
+            {
+                var sum = 0;
+                foreach(var number in combination)
+                {
+                    sum += number;
+                }
+                if(sum == demandSum)
+                {
+                    goodCombinations.Add(combination);
+                }
+            }
+
+            return goodCombinations;
+        }
+
+        List<List<int>> prepareAllPossibleCombinationsOfSolutions(IEnumerable<int> input, int length)
+        {
+            var possibleCombinationsEnumerable = GetCombinations(input, length);
+            //Zmieniam na liste
+            var possibleCombinations = new List<List<int>>();
+            foreach(var combination in possibleCombinationsEnumerable)
+            {
+                possibleCombinations.Add(combination.ToList());
+            }
+
+            //Sprawdzam czy kombinacja jest ok
+            var goodCombinations = new List<List<int>>();
+            foreach (var combination in possibleCombinations)
+            {
+                var isOK = true;
+                for (int i = 0; i < length; i++)
+                {
+                    if (combination[i] >= demands[i].possibleSolutions.Count)
                     {
-                        foreach(Link link in demand.AvailablePaths[i].Links)
-                        {
-                            Link networkLink = this.links.Find(x => x.id == link.id);
-                            networkLink.usedCapacity = networkLink.usedCapacity + 1 * combination[i];
-                        }
-                    }
-                    if(objectiveFunction() == 0){
-                        Console.WriteLine("Demand #" + demand.id);
-                        for(int i=1;i<=combination.Count;i++)
-                        {
-                            Console.WriteLine("Path #"+i+" Used: "+combination[i-1]);
-                        }
-                        break;
+                        isOK = false;
                     }
                 }
-             
+                if (isOK)
+                {
+                    goodCombinations.Add(combination);
+                }
             }
+            return goodCombinations;
         }
 
         int objectiveFunction()
@@ -113,16 +145,12 @@ namespace OAST_Projekt1
             return Math.Max(0, linkResults.Max());
         }
 
-        static IEnumerable<String> CombinationsWithRepition(IEnumerable<int> input, int length)
+        static IEnumerable<IEnumerable<T>> GetCombinations<T>(IEnumerable<T> list, int length)
         {
-            if (length <= 0)
-                yield return "";
-            else
-            {
-                foreach (var i in input)
-                    foreach (var c in CombinationsWithRepition(input, length - 1))
-                        yield return i.ToString() + c;
-            }
+            if (length == 1) return list.Select(t => new T[] { t });
+
+            return GetCombinations(list, length - 1)
+                .SelectMany(t => list, (t1, t2) => t1.Concat(new T[] { t2 }));
         }
 
     }

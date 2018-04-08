@@ -33,7 +33,7 @@ namespace OAST_Projekt1
             {
                 
                // filepath = Console.ReadLine();
-                filepath = "Network3.txt";
+                filepath = "Network.txt";
                 streamReader = new StreamReader(filepath);
             }
             catch
